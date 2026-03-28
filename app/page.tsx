@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TrackingProgress } from "@/components/tracking-progress";
 import { cn } from "@/lib/utils";
+import { Footer } from "@/components/footer";
 
 // 1. Definisi Master Data Status (Sama dengan TrackingProgress)
 const STATUS_STAGES = [
@@ -213,7 +214,7 @@ export default function Home() {
         )}
 
         {packageStatus && (
-          <div className="w-screen md:flex md:flex-col-2 px-5 space-x-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className=" w-screen md:flex md:flex-col-2 px-5 space-x-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* 1. Visual Progress (The Treasure Map) */}
             <TrackingProgress currentStatus={packageStatus} resiNumber={trackingNumber}/>
 
@@ -301,6 +302,7 @@ export default function Home() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

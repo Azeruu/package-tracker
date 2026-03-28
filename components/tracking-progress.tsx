@@ -147,7 +147,7 @@ export function TrackingProgress({
   const isFinished = currentIndex === STEPS.length - 1;
 
   return (
-    <div className="w-full max-w-5xl h-screen overflow-y-auto mx-auto select-none p-2 sm:p-4">
+    <div className="border border-2 border-amber-100 dark:border-zinc-800 rounded-[2.5rem] p-8 border-4 border-amber-100 dark:border-zinc-800 shadow-2xl w-full max-w-5xl h-screen overflow-y-auto mx-auto select-none p-2 sm:p-4">
       <div className="relative rounded-2xl sm:rounded-3xl border-2 border-amber-200/60 dark:border-amber-900/40 bg-amber-50 dark:bg-zinc-900 shadow-xl overflow-hidden flex flex-col min-h-full">
         {/* Parchment texture */}
         <div
