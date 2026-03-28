@@ -108,19 +108,47 @@ export default function Home() {
     setPackageStatus(null);
 
     try {
-      // Simulasi fetch (Bisa kamu ganti dengan fetch asli ke Hono)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/track", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ trackingNumber }),
+      });
 
-      // MOCK DATA: Misal kita dapet status "LOCAL_TRANSIT"
-      const mockStatusFromAPI = "LOCAL_TRANSIT";
+      if (!response.ok) {
+        throw new Error("Gagal melacak paket.");
+      }
 
-      // 2. Logic Generate History Otomatis
-      const currentIndex = STATUS_STAGES.findIndex(
-        (s) => s.id === mockStatusFromAPI,
-      );
+      const result = await response.json();
+      
+      if (result.status !== 200) {
+        throw new Error(result.message || "Resi tidak ditemukan.");
+      }
 
+      const apiStatus = result.data.summary.status.toUpperCase();
+      
+      // 2. Map API status to our internal STATUS_STAGES
+      let mappedStatus = "ORDER_RECEIVED";
+      if (apiStatus === "DELIVERED") {
+        mappedStatus = "DELIVERED";
+      } else if (apiStatus === "ON PROCESS" || apiStatus === "RECEIVED AT WAREHOUSE") {
+        mappedStatus = "ARRIVED_INDO";
+      } else if (apiStatus === "ON_FLIGHT_TO_INDO" || apiStatus === "ON_FLIGHT") {
+        mappedStatus = "ON_FLIGHT";
+      } else if (apiStatus === "PURCHASED_IN_JAPAN" || apiStatus === "ITEM_BOUGHT") {
+        mappedStatus = "ITEM_BOUGHT";
+      } else if (apiStatus === "ORDER_RECEIVED") {
+        mappedStatus = "ORDER_RECEIVED";
+      } else {
+        // Default mapping if not found
+        mappedStatus = "ORDER_RECEIVED";
+      }
+
+      const currentIndex = STATUS_STAGES.findIndex((s) => s.id === mappedStatus);
       if (currentIndex === -1) throw new Error("Status paket tidak valid.");
 
+      // 3. Logic Generate History Otomatis (Konsep Sebelumnya)
       // Kita ambil semua stage dari awal sampai currentIndex
       const generatedHistory = STATUS_STAGES.slice(0, currentIndex + 1)
         .map((stage, idx) => ({
@@ -140,7 +168,7 @@ export default function Home() {
         }))
         .reverse(); // Terbaru di atas
 
-      setPackageStatus(mockStatusFromAPI);
+      setPackageStatus(mappedStatus);
       setHistory(generatedHistory);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
@@ -187,7 +215,7 @@ export default function Home() {
         {packageStatus && (
           <div className="w-screen md:flex md:flex-col-2 px-5 space-x-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* 1. Visual Progress (The Treasure Map) */}
-            <TrackingProgress currentStatus={packageStatus}/>
+            <TrackingProgress currentStatus={packageStatus} resiNumber={trackingNumber}/>
 
             {/* 2. Detailed History List */}
             <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border-4 border-amber-100 dark:border-zinc-800 shadow-2xl overflow-y-auto h-screen relative">
